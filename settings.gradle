@@ -1,0 +1,17 @@
+rootProject.name = 'TestingTask'
+[
+        'RuleCommands'
+].forEach {
+    include it
+}
+
+rootProject.children.each { project ->
+    {
+        project.buildFileName = "${project.name}.gradle"
+        project.children.each { subproject ->
+            {
+                subproject.buildFileName = "${subproject.name}.gradle"
+            }
+        }
+    }
+}

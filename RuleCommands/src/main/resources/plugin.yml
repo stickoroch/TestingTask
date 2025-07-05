@@ -1,0 +1,6 @@
+name: RuleCommands
+main: ru.stickoroch.testingtask.rulecommands.RuleCommandPlugin
+version: 1.0
+commands:
+  object:
+    description: 111
