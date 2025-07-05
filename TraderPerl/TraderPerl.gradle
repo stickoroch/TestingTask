@@ -1,1 +1,10 @@
-dependencies {}
+plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.0'
+}
+
+apply plugin: 'com.github.johnrengelman.shadow'
+
+dependencies {
+    implementation 'org.hibernate.orm:hibernate-core:6.4.4.Final'
+    implementation 'org.postgresql:postgresql:42.7.3'
+}
