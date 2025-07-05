@@ -18,9 +18,14 @@ public class TraderPerlPlugin extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        databaseConfiguration = new DatabaseConfiguration(this);
-        databaseConfiguration.init();
-        transactionLoggerService = new TransactionLoggerService(databaseConfiguration.getSessionFactory());
+        getConfig().options().copyDefaults(true);
+        saveDefaultConfig();
+
+        if (getConfig().getBoolean("enable-logger")) {
+            databaseConfiguration = new DatabaseConfiguration(this);
+            databaseConfiguration.init();
+            transactionLoggerService = new TransactionLoggerService(databaseConfiguration.getSessionFactory());
+        }
     }
 
     @Override
@@ -29,6 +34,8 @@ public class TraderPerlPlugin extends JavaPlugin {
         wanderingTraderRecipeFactory = new WanderingTraderRecipeFactory(random);
 
         Bukkit.getPluginManager().registerEvents(new TraderSpawnListener(wanderingTraderRecipeFactory), this);
-        Bukkit.getPluginManager().registerEvents(new TradeTransactionListener(transactionLoggerService, this), this);
+        if (getConfig().getBoolean("enable-logger")) {
+            Bukkit.getPluginManager().registerEvents(new TradeTransactionListener(transactionLoggerService, this), this);
+        }
     }
 }
