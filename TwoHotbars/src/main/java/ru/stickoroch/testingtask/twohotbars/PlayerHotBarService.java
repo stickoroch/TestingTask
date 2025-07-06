@@ -46,10 +46,12 @@ public class PlayerHotBarService implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
-        if (!playerSecondHotBars.containsKey(e.getPlayer().getUniqueId())) return;
-        hotBarStorage.savePlayerHotBar(playerSecondHotBars.get(e.getPlayer().getUniqueId())).thenAccept(x -> {
-            playerSecondHotBars.remove(e.getPlayer().getUniqueId());
-        });
+        if (playerSecondHotBars.containsKey(e.getPlayer().getUniqueId())) {
+            hotBarStorage.savePlayerHotBar(playerSecondHotBars.get(e.getPlayer().getUniqueId())).thenAccept(x -> {
+                playerSecondHotBars.remove(e.getPlayer().getUniqueId());
+            });
+        }
+
     }
 
     @EventHandler
@@ -58,38 +60,38 @@ public class PlayerHotBarService implements Listener {
         e.setCancelled(true);
 
         UUID playerId = e.getPlayer().getUniqueId();
-        if(loadingHotBars.contains(playerId)) return;
+        if (loadingHotBars.contains(playerId)) return;
 
         ItemStack[] b = getPlayerHotBarArray(e.getPlayer());
 
-        if(playerSecondHotBars.containsKey(playerId)) {
+        if (playerSecondHotBars.containsKey(playerId)) {
             setPlayerHotBarArray(e.getPlayer(), playerSecondHotBars.get(playerId).getHotBar());
 
             playerSecondHotBars.replace(playerId, hotBarStorage.createHotBar(playerId, b));
-        }else{
+        } else {
             setPlayerHotBarArray(e.getPlayer(), new ItemStack[9]);
             playerSecondHotBars.put(playerId, hotBarStorage.createHotBar(playerId, b));
         }
     }
 
-    public void saveAllToStorage(){
-        hotBarStorage.save(playerSecondHotBars.values());
+    public void saveAllToStorage() {
+        hotBarStorage.saveAll(playerSecondHotBars.values());
     }
 
-    private ItemStack @NonNull[] getPlayerHotBarArray(@NonNull Player player){
+    private ItemStack @NonNull [] getPlayerHotBarArray(@NonNull Player player) {
         ItemStack[] items = new ItemStack[9];
         for (int i = 0; i < 9; i++) {
             ItemStack stack = player.getInventory().getItem(i);
-            if(stack != null) stack = stack.clone();
+            if (stack != null) stack = stack.clone();
             items[i] = stack;
         }
         return items;
     }
 
-    private void setPlayerHotBarArray(@NonNull Player player, ItemStack @NonNull[] items) {
+    private void setPlayerHotBarArray(@NonNull Player player, ItemStack @NonNull [] items) {
         for (int i = 0; i < 9; i++) {
             ItemStack item = items[i];
-            if(item != null) item = item.clone();
+            if (item != null) item = item.clone();
             player.getInventory().setItem(i, item);
         }
     }

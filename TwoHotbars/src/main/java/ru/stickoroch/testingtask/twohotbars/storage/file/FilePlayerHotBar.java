@@ -15,7 +15,7 @@ public class FilePlayerHotBar implements PlayerHotBar {
 
     @NonNull
     final UUID ownerUUID;
-    ItemStack @NonNull[] hotBar;
+    ItemStack @NonNull [] hotBar;
 
     public FilePlayerHotBar(@NonNull UUID ownerUUID) {
         this.ownerUUID = ownerUUID;

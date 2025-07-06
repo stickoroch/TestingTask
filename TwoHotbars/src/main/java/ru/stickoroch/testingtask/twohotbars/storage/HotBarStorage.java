@@ -20,5 +20,5 @@ public interface HotBarStorage {
     @NonNull
     PlayerHotBar createHotBar(@NonNull UUID uuid, ItemStack @NonNull [] items);
 
-    void save(@NonNull Collection<@NonNull PlayerHotBar> hotBars);
+    void saveAll(@NonNull Collection<@NonNull PlayerHotBar> hotBars);
 }

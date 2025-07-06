@@ -5,11 +5,13 @@ import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 import ru.stickoroch.testingtask.twohotbars.storage.HotBarStorage;
+import ru.stickoroch.testingtask.twohotbars.storage.ItemStackArrayToByteArrayConverter;
 import ru.stickoroch.testingtask.twohotbars.storage.PlayerHotBar;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -19,9 +21,12 @@ public class FileHotBarStorage implements HotBarStorage {
 
     @NonNull
     File directory;
+    @NonNull
+    ItemStackArrayToByteArrayConverter converter;
 
     public FileHotBarStorage(@NonNull Plugin plugin) {
         this.directory = new File(plugin.getDataFolder(), "hotbars");
+        this.converter = new ItemStackArrayToByteArrayConverter();
     }
 
     @Override
@@ -35,23 +40,19 @@ public class FileHotBarStorage implements HotBarStorage {
     @Override
     public @NonNull CompletableFuture<PlayerHotBar> loadPlayerHotBar(@NonNull UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
+            FilePlayerHotBar playerHotBar = new FilePlayerHotBar(uuid);
             try {
                 File hotBarFile = new File(directory, uuid + ".hotbar");
                 if (!hotBarFile.exists()) {
-                    return new FilePlayerHotBar(uuid);
+                    return playerHotBar;
                 }
                 try (FileInputStream reader = new FileInputStream(hotBarFile)) {
-                    ByteArrayInputStream bis = new ByteArrayInputStream(reader.readAllBytes());
-                    ObjectInputStream ois = new ObjectInputStream(bis);
-                    PlayerHotBar playerHotBar = (PlayerHotBar) ois.readObject();
-                    bis.close();
-                    ois.close();
-                    return playerHotBar;
+                    playerHotBar.setHotBar(converter.decode(reader.readAllBytes()));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                return new FilePlayerHotBar(uuid);
             }
+            return playerHotBar;
         });
     }
 
@@ -67,28 +68,22 @@ public class FileHotBarStorage implements HotBarStorage {
                 hotBarFile.createNewFile();
             }
 
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeObject(playerHotBar);
-            oos.flush();
             try (FileOutputStream fos = new FileOutputStream(hotBarFile)) {
-                fos.write(bos.toByteArray());
+                fos.write(converter.encode(playerHotBar.getHotBar()));
             }
-            bos.flush();
-            oos.close();
-            bos.close();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public @NonNull PlayerHotBar createHotBar(@NonNull UUID uuid, @NotNull @NonNull ItemStack[] items) {
+    public @NonNull PlayerHotBar createHotBar(@NonNull UUID uuid, ItemStack @NonNull [] items) {
         return new FilePlayerHotBar(uuid, items);
     }
 
     @Override
-    public void save(@NonNull Collection<@NonNull PlayerHotBar> hotBars) {
+    public void saveAll(@NonNull Collection<@NonNull PlayerHotBar> hotBars) {
         hotBars.forEach(this::save);
     }
 }
