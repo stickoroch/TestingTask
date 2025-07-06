@@ -1,7 +1,8 @@
 rootProject.name = 'TestingTask'
 [
         'RuleCommands',
-        'TraderPerl'
+        'TraderPerl',
+        'TwoHotbars'
 ].forEach {
     include it
 }
