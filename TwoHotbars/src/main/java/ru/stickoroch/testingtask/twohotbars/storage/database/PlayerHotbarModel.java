@@ -16,13 +16,12 @@ import java.util.UUID;
 public class PlayerHotbarModel implements PlayerHotBar {
 
 
-    @Id
-    @NonNull
-    private UUID ownerUUID;
-
     @Convert(converter = ItemStackArrayToByteArrayDatabaseConverter.class)
     @Lob
     ItemStack[] hotBar;
+    @Id
+    @NonNull
+    private UUID ownerUUID;
 
     public PlayerHotbarModel(@NonNull UUID ownerUUID) {
         this.ownerUUID = ownerUUID;
